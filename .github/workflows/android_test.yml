@@ -56,12 +56,12 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      # Start Emulator and Run Instrumented Tests
       - name: Run Instrumented Tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          target: google_apis
-          arch: x86_64
-          profile: Pixel_4
-          script: ./gradlew connectedDebugAndroidTest
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 30
+        target: google_apis
+        arch: x86_64
+        profile: Pixel_4
+        emulator-boot-timeout: 600 # Set to 600 seconds (10 minutes)
+        script: ./gradlew connectedDebugAndroidTest
