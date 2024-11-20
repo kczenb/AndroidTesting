@@ -38,8 +38,8 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2
         with:
-          api-level: 30
-          build-tools: 30.0.3
+          api-level: 35
+          build-tools: 34.0.0
 
       # Step 5: Grant execution permissions for Gradle wrapper
       - name: Grant Gradle Permissions
@@ -57,14 +57,8 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       # Step 8: Start Emulator and Run Instrumented Tests
-      - name: Run Instrumented Tests
+      - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 29
           script: ./gradlew connectedCheck
-          headless: true
-          emulator-boot-timeout: 600
-          show-emulator-log: true
-          arch: x86_64
-          profile: Nexus 6
-          target: google_apis
