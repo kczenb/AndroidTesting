@@ -10,7 +10,7 @@ on:
 jobs:
   connected-tests:
     runs-on: macos-latest
-    
+
     steps:
       # Step 1: Checkout the repository
       - name: Checkout
@@ -34,3 +34,17 @@ jobs:
           script: ./gradlew connectedCheck
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -accel off
           disable-animations: true
+          emulator-boot-timeout: 600
+          force-avd-creation: true
+
+      # Step 4: Wait for the emulator to be ready
+      - name: Wait for Emulator
+        run: |
+          adb wait-for-device
+          boot_completed=$(adb shell getprop sys.boot_completed | tr -d '\r')
+          while [ "$boot_completed" != "1" ]; do
+            echo "Waiting for emulator to boot..."
+            sleep 5
+            boot_completed=$(adb shell getprop sys.boot_completed | tr -d '\r')
+          done
+          echo "Emulator is ready!"
