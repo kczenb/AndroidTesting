@@ -14,7 +14,7 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Set up JDK 17
       - name: Set up JDK 17
@@ -25,7 +25,7 @@ jobs:
 
       # Cache Gradle dependencies
       - name: Cache Gradle Dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
@@ -38,27 +38,30 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2
         with:
-          api-level: 30
-          build-tools: 30.0.3
-          target: android-30
+          api-level: 34
+          build-tools: 34.0.0
 
       # Grant execution permissions for Gradle wrapper
       - name: Grant Gradle Permissions
         run: chmod +x ./gradlew
 
-      # Run Unit Tests
+      # Run Unit Tests (JUnit tests)
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
-      # Set up Emulator
-      - name: Set up Emulator
+      # Enable KVM for hardware acceleration
+      - name: Enable KVM
         run: |
-          sdkmanager "system-images;android-30;google_apis;x86_64"
-          echo "no" | avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" -d pixel
-          nohup emulator -avd test -no-audio -no-window -gpu off &
-          adb wait-for-device
-          adb shell input keyevent 82
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
-      # Run Instrumented Tests
+      # Start Emulator and Run Instrumented Tests
       - name: Run Instrumented Tests
-        run: ./gradlew connectedDebugAndroidTest
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: Pixel_4
+          script: ./gradlew connectedDebugAndroidTest
