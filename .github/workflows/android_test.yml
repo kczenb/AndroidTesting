@@ -1,0 +1,64 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    name: Run Unit and Instrumented Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # Cache Gradle dependencies
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Set up Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 30
+          build-tools: 30.0.3
+          target: android-30
+
+      # Grant execution permissions for Gradle wrapper
+      - name: Grant Gradle Permissions
+        run: chmod +x ./gradlew
+
+      # Run Unit Tests
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      # Set up Emulator
+      - name: Set up Emulator
+        run: |
+          sdkmanager "system-images;android-30;google_apis;x86_64"
+          echo "no" | avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" -d pixel
+          nohup emulator -avd test -no-audio -no-window -gpu off &
+          adb wait-for-device
+          adb shell input keyevent 82
+
+      # Run Instrumented Tests
+      - name: Run Instrumented Tests
+        run: ./gradlew connectedDebugAndroidTest
