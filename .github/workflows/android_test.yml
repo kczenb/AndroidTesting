@@ -66,4 +66,5 @@ jobs:
           emulator-boot-timeout: 600
           show-emulator-log: true
           arch: x86_64
+          profile: Nexus 6
           target: google_apis
