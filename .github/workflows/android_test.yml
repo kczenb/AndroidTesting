@@ -6,6 +6,11 @@ on:
       - main
   pull_request:
 
+# Add permissions here for the entire workflow
+permissions:
+  checks: write
+  contents: read
+
 jobs:
   run-tests:
     runs-on: ubuntu-latest
@@ -21,17 +26,21 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
-      # Step 3: Build APKs
+      # Step 3: Run Unit Tests (Local JVM)
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --stacktrace
+
+      # Step 4: Build APKs
       - name: Build app
         run: ./gradlew assembleDebug assembleAndroidTest --stacktrace
 
-      # Step 4: Verify APKs
+      # Step 5: Verify APKs
       - name: Verify APKs
         run: |
           ls -l app/build/outputs/apk/debug/
           ls -l app/build/outputs/apk/androidTest/
 
-      # Step 5: Run tests
+      # Step 6: Run tests
       - name: Run tests
         uses: emulator-wtf/run-tests@v0
         with:
@@ -42,7 +51,7 @@ jobs:
             model=Pixel7,version=34
           outputs-dir: build/test-results
 
-      # Step 6: Publish test report
+      # Step 7: Publish test report
       - name: Publish test report
         uses: mikepenz/action-junit-report@v2
         if: always() # always run even if the tests fail
