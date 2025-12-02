@@ -28,7 +28,8 @@ jobs:
 
       # Step 3: Run Unit Tests (Local JVM)
       - name: Run unit tests
-        run: ./gradlew testDebugUnitTest --stacktrace
+        run: ./gradlew testDebugUnitTest --stacktrace --info
+          echo "=== Unit Tests Completed ==="
 
       # Step 4: Build APKs
       - name: Build app
@@ -51,7 +52,7 @@ jobs:
             model=Pixel7,version=34
           outputs-dir: build/test-results
 
-      # Step 7: Publish test report
+      # Step 7: Publish test report test
       - name: Publish test report
         uses: mikepenz/action-junit-report@v2
         if: always() # always run even if the tests fail
