@@ -24,7 +24,7 @@ class DataValidatorTest {
 
     @Test
     fun testValidEmails() {
-        // Test cases for valid emails
+        // Test cases for valid emails example
         assertTrue(dataValidator.invoke("test@example.com"))
         assertTrue(dataValidator.invoke("user.name+tag+sorting@example.com"))
         assertTrue(dataValidator.invoke("valid_email@sub.domain.org"))
