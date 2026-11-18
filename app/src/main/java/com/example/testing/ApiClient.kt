@@ -5,7 +5,7 @@ import retrofit2.http.GET
 import retrofit2.converter.gson.GsonConverterFactory
 
 data class ApiResponse(val success: Boolean)
-
+// api service
 interface ApiService {
     @GET("/data")
     suspend fun getDataFromServer(): ApiResponse
